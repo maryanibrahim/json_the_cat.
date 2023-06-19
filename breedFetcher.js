@@ -1,25 +1,30 @@
-/* eslint-disable no-console */
+/* eslint-disable func-names */
 /* eslint-disable import/no-extraneous-dependencies */
 const request = require('request');
 
-// Get the breed name from the command-line arguments
-const breedName = process.argv[2];
+// This function fetches the description of a breed from TheCatAPI.
 
-const url = `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`;
+const fetchBreedDescription = function (breedName, callback) {
+  const url = `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`;
 
-request(url, (error, response, body) => {
-  // Handle request errors
-  if (error) {
-    console.error(`Failed to fetch breed information: ${error}`);
-    return;
-  }
+  request(url, (error, response, body) => {
+    // If there's an error with the request, call the callback with the error message
+    if (error) {
+      callback(`Failed to fetch breed information: ${error}`, null);
+      return;
+    }
 
-  const data = JSON.parse(body);
+    const data = JSON.parse(body);
 
-  if (data.length === 0) {
-    console.log(`No breed found with the name "${breedName}"`);
-    return;
-  }
+    // If the breed is not found, call the callback with an error message
+    if (data.length === 0) {
+      callback(`No breed found with the name "${breedName}"`, null);
+      return;
+    }
 
-  console.log(data[0].description);
-});
+    // If the breed is found, call the callback with the breed description
+    callback(null, data[0].description);
+  });
+};
+
+module.exports = { fetchBreedDescription };
